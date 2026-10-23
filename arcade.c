@@ -5,9 +5,19 @@
  * Integrante A: Douglas Luan
  * Modulo: Insercao e Cadastro (validacao de limites na RAM)
  *
+ * Integrante B: (pendente) - Busca e Modificacao
+ * Integrante C: (pendente) - Remocao e Matriz
+ *
+ * Integrante D: Eduardo
+ * Modulo: Relatorios e Ordenacao (calculos analiticos e Bubble Sort)
+ *
  * Neste arquivo, a funcao cadastrarMaquina() e a parte do integrante A.
  * A funcao listarMaquinas() e o main() com o menu sao provisorios e
  * servem apenas para testar o cadastro.
+ *
+ * REGRA DE INTEGRACAO: cada integrante escreve SOMENTE dentro da sua
+ * regiao marcada (funcoes e linhas do menu). Nao use "Formatar codigo"
+ * da IDE no arquivo inteiro, para nao gerar conflitos no Git.
  */
 
 #include <stdio.h>
@@ -124,6 +134,161 @@ void listarMaquinas(void) {
     }
 }
 
+/* ============================================================
+ * INICIO DO MODULO B - Busca e Modificacao (Integrante B)
+ * Escreva suas funcoes SOMENTE entre estas linhas.
+ * ============================================================ */
+
+
+
+/* ===================== FIM DO MODULO B ==================== */
+
+
+/* ============================================================
+ * INICIO DO MODULO C - Remocao e Matriz (Integrante C)
+ * Escreva suas funcoes SOMENTE entre estas linhas.
+ * ============================================================ */
+
+
+
+/* ===================== FIM DO MODULO C ==================== */
+
+
+/* ============================================================
+ * INICIO DO MODULO D - Relatorios e Ordenacao (Eduardo)
+ * Este modulo so LE os dados globais (nao altera o vetor), entao
+ * nao depende das funcoes de B e C: usa apenas maquinas[] e
+ * totalMaquinas.
+ * ============================================================ */
+
+/*
+ * Modulo D (Eduardo): auxiliar que imprime uma maquina em uma linha.
+ * Recebe a maquina como parametro (copia), sem alterar o vetor.
+ */
+void imprimirLinhaMaquina(Maquina m) {
+    printf("[%2d] %-18s | Score: %6d | Recordista: ",
+           m.id, m.nome, m.highScore);
+
+    if (m.recordista[0] == '\0') {
+        printf("---");
+    } else {
+        printf("%s", m.recordista);
+    }
+
+    if (m.ativa) {
+        printf(" | Ativa\n");
+    } else {
+        printf(" | Manutencao\n");
+    }
+}
+
+/*
+ * Modulo D (Eduardo): relatorio geral com totais, extremos de
+ * high score, media e situacao das maquinas.
+ */
+void relatorioGeral(void) {
+    int totalFichas = 0;
+    int somaScores = 0;
+    int ativas = 0;
+    int manutencao = 0;
+    int posMaior, posMenor, posMaisJogada;
+    float media;
+
+    if (totalMaquinas == 0) {
+        printf("Nenhuma maquina cadastrada para gerar relatorio.\n");
+        return;
+    }
+
+    /* A primeira maquina real assume a lideranca (nunca comecar em 0) */
+    posMaior = 0;
+    posMenor = 0;
+    posMaisJogada = 0;
+
+    for (int i = 0; i < totalMaquinas; i++) {
+        totalFichas += maquinas[i].fichasInseridas;
+        somaScores += maquinas[i].highScore;
+
+        if (maquinas[i].ativa) {
+            ativas++;
+        } else {
+            manutencao++;
+        }
+
+        if (maquinas[i].highScore > maquinas[posMaior].highScore) {
+            posMaior = i;
+        }
+        if (maquinas[i].highScore < maquinas[posMenor].highScore) {
+            posMenor = i;
+        }
+        if (maquinas[i].fichasInseridas >
+            maquinas[posMaisJogada].fichasInseridas) {
+            posMaisJogada = i;
+        }
+    }
+
+    /* O cast para float evita a divisao inteira */
+    media = (float)somaScores / totalMaquinas;
+
+    printf("\n========== RELATORIO GERAL ==========\n");
+    printf("Total de maquinas .......: %d\n", totalMaquinas);
+    printf("Ativas / Manutencao .....: %d / %d\n", ativas, manutencao);
+    printf("Total de fichas inseridas: %d\n", totalFichas);
+    printf("Media dos high scores ...: %.2f\n", media);
+
+    printf("\nMaior high score:\n  ");
+    imprimirLinhaMaquina(maquinas[posMaior]);
+
+    printf("Menor high score:\n  ");
+    imprimirLinhaMaquina(maquinas[posMenor]);
+
+    printf("Maquina mais jogada (%d fichas):\n  ",
+           maquinas[posMaisJogada].fichasInseridas);
+    imprimirLinhaMaquina(maquinas[posMaisJogada]);
+    printf("=====================================\n");
+}
+
+/*
+ * Modulo D (Eduardo): ranking de high scores (maior para menor)
+ * com Bubble Sort. Ordena uma COPIA do vetor, entao as posicoes do
+ * vetor original (usadas pelos modulos A, B e C) nao mudam.
+ */
+void rankingPorHighScore(void) {
+    Maquina copia[MAX_MAQUINAS];
+    Maquina aux;
+
+    if (totalMaquinas == 0) {
+        printf("Nenhuma maquina cadastrada para gerar ranking.\n");
+        return;
+    }
+
+    /* 1. Copia o vetor original */
+    for (int i = 0; i < totalMaquinas; i++) {
+        copia[i] = maquinas[i];
+    }
+
+    /* 2. Bubble Sort decrescente por highScore */
+    for (int i = 0; i < totalMaquinas - 1; i++) {
+        for (int j = 0; j < totalMaquinas - 1 - i; j++) {
+            if (copia[j].highScore < copia[j + 1].highScore) {
+                aux = copia[j];
+                copia[j] = copia[j + 1];
+                copia[j + 1] = aux;
+            }
+        }
+    }
+
+    /* 3. Mostra o ranking */
+    printf("\n========== RANKING DE HIGH SCORES ==========\n");
+    for (int i = 0; i < totalMaquinas; i++) {
+        printf("%2d lugar - ", i + 1);
+        imprimirLinhaMaquina(copia[i]);
+    }
+    printf("============================================\n");
+}
+
+/* ===================== FIM DO MODULO D ==================== */
+
+
 int main(void) {
     int opcao;
 
@@ -131,6 +296,10 @@ int main(void) {
         printf("\n=== FLIPERAMA ===\n");
         printf("1 - Cadastrar maquina\n");
         printf("2 - Listar maquinas\n");
+        /* Opcoes 3 a 6: modulo B (Integrante B adiciona aqui) */
+        /* Opcoes 7 e 8: modulo C (Integrante C adiciona aqui) */
+        printf("9 - Relatorio geral\n");
+        printf("10 - Ranking por high score\n");
         printf("0 - Sair\n");
         printf("Escolha: ");
         scanf("%d", &opcao);
@@ -141,6 +310,14 @@ int main(void) {
                 break;
             case 2:
                 listarMaquinas();
+                break;
+            /* case 3 a 6: modulo B (Integrante B adiciona aqui) */
+            /* case 7 e 8: modulo C (Integrante C adiciona aqui) */
+            case 9:
+                relatorioGeral();
+                break;
+            case 10:
+                rankingPorHighScore();
                 break;
             case 0:
                 printf("Ate a proxima!\n");
