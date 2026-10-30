@@ -15,46 +15,63 @@
  * Modulo: Relatorios e Ordenacao (calculos analiticos e Bubble Sort)
  *
  * REGRA DE INTEGRACAO: cada integrante escreve SOMENTE dentro da sua
- * regiao marcada (funcoes e linhas do menu). Nao use "Formatar codigo"
+ * regiao marcada (funcoes e submenu do modulo). Nao use "Formatar codigo"
  * da IDE no arquivo inteiro, para nao gerar conflitos no Git.
  */
 
 #include <stdio.h>
-#include <stdbool.h>
 
 /* Limite de maquinas que cabem no vetor (capacidade da RAM) */
-#define MAX_MAQUINAS 20
+#define MAX_MAQUINAS 50
 #define TAM_NOME 50
 #define TAM_RECORDISTA 30
 
-typedef struct
+struct Maquina
 {
     int id;
     char nome[TAM_NOME];
     int fichasInseridas;
     int highScore;
     char recordista[TAM_RECORDISTA];
-    bool ativa;
-} Maquina;
+    int ativa; /* 1 = Ativa, 0 = Manutencao */
+    float receita;
+};
 
-typedef struct
+struct Caixa
 {
-    int precoFicha;
-    int saldo;
+    float precoFicha;
+    float totalArrecadado;
+    int fichasVendidas;
     int fichasEmMaos;
-} Caixa;
+};
 
-Maquina maquinas[MAX_MAQUINAS] = {
-    {.id = 1, .nome = "Street Fighter II", .fichasInseridas = 12, .highScore = 15000, .recordista = "Ana", .ativa = true},
-    {.id = 2, .nome = "Street Fighter II", .fichasInseridas = 9, .highScore = 11800, .recordista = "Diego", .ativa = true},
-    {.id = 3, .nome = "Pac-Man", .fichasInseridas = 7, .highScore = 8200, .recordista = "Bruno", .ativa = true},
-    {.id = 4, .nome = "Pac-Man", .fichasInseridas = 15, .highScore = 9600, .recordista = "Elisa", .ativa = true},
-    {.id = 5, .nome = "Pinball", .fichasInseridas = 20, .highScore = 23400, .recordista = "Carla", .ativa = true},
-    {.id = 6, .nome = "Pinball", .fichasInseridas = 4, .highScore = 17500, .recordista = "Felipe", .ativa = true},
-    {.id = 7, .nome = "Street Fighter II", .fichasInseridas = 18, .highScore = 13200, .recordista = "Gabi", .ativa = false},
-    {.id = 8, .nome = "Pac-Man", .fichasInseridas = 11, .highScore = 7400, .recordista = "Hugo", .ativa = false},
-    {.id = 9, .nome = "Pinball", .fichasInseridas = 6, .highScore = 20100, .recordista = "Iara", .ativa = false},
-    {.id = 10, .nome = "Street Fighter II", .fichasInseridas = 3, .highScore = 5900, .recordista = "Joao", .ativa = false}};
+struct Maquina maquinas[MAX_MAQUINAS] = {
+    {1, "Street Fighter II", 12, 15000, "Ana", 1, 30.0},
+    {2, "Street Fighter II", 9, 11800, "Diego", 1, 22.5},
+    {3, "Pac-Man", 7, 8200, "Bruno", 1, 17.5},
+    {4, "Pac-Man", 15, 9600, "Elisa", 1, 37.5},
+    {5, "Pinball", 20, 23400, "Carla", 1, 50.0},
+    {6, "Pinball", 4, 17500, "Felipe", 1, 10.0},
+    {7, "Street Fighter II", 18, 13200, "Gabi", 0, 45.0},
+    {8, "Pac-Man", 11, 7400, "Hugo", 0, 27.5},
+    {9, "Pinball", 6, 20100, "Iara", 0, 15.0},
+    {10, "Street Fighter II", 3, 5900, "Joao", 0, 7.5}};
+
+#define DIAS_SEMANA 7
+
+/* Fichas inseridas por maquina em cada dia (Dom, Seg, ..., Sab).
+   A soma de cada linha e igual ao fichasInseridas da maquina. */
+int usoSemanal[MAX_MAQUINAS][DIAS_SEMANA] = {
+    {1, 0, 1, 2, 1, 3, 4},
+    {0, 1, 0, 1, 2, 1, 4},
+    {0, 1, 1, 0, 1, 1, 3},
+    {2, 1, 2, 1, 2, 3, 4},
+    {2, 1, 2, 2, 3, 4, 6},
+    {0, 0, 1, 0, 1, 0, 2},
+    {2, 2, 1, 2, 3, 3, 5},
+    {1, 0, 2, 1, 1, 2, 4},
+    {0, 1, 0, 1, 1, 1, 2},
+    {0, 0, 1, 0, 0, 1, 1}};
 
 /* Quantas posicoes do vetor estao realmente em uso */
 int totalMaquinas = 10;
@@ -63,25 +80,32 @@ int totalMaquinas = 10;
    um id, mesmo depois de o modulo C remover uma maquina */
 int proximoId = 11;
 
-Caixa caixa = {1, 0, 0};
+struct Caixa caixa = {2.5, 262.5, 105, 0};
+
+/* Prototipos de funcoes do modulo B usadas antes da sua definicao */
+int lerInteiroB(const char *mensagem);
+int buscarIndicePorIdB(int id);
+
+/* ============================================================
+ * INICIO DO MODULO A - Insercao e Cadastro (Douglas Luan)
+ * ============================================================ */
 
 /*
- * Modulo A (Douglas Luan): cadastra uma nova maquina no vetor.
+ * Modulo A: cadastra uma nova maquina no vetor.
  * Antes de gravar, valida o limite do vetor para nao escrever fora
  * da memoria reservada.
  */
+// Autor: Douglas Luan
 void cadastrarMaquina(void)
 {
+    struct Maquina nova;
+
     /* Validacao de limite: se o vetor esta cheio, nao cadastra */
     if (totalMaquinas >= MAX_MAQUINAS)
     {
         printf("Limite de maquinas atingido (%d).\n", MAX_MAQUINAS);
         return;
     }
-
-    /* A maquina e montada numa variavel local e so depois copiada
-       para o vetor */
-    Maquina nova;
 
     nova.id = proximoId;
 
@@ -94,7 +118,8 @@ void cadastrarMaquina(void)
     nova.fichasInseridas = 0;
     nova.highScore = 0;
     nova.recordista[0] = '\0';
-    nova.ativa = true;
+    nova.ativa = 1;
+    nova.receita = 0;
 
     /* Grava na primeira posicao livre e atualiza os contadores */
     maquinas[totalMaquinas] = nova;
@@ -104,10 +129,13 @@ void cadastrarMaquina(void)
     printf("Maquina cadastrada com ID %d.\n", nova.id);
 }
 
+// Autor: Douglas Luan
 void listarMaquinas(void)
 {
+    int i;
+
     printf("\nID   Jogo                 Fichas  Recorde  Recordista  Status\n");
-    for (int i = 0; i < totalMaquinas; i++)
+    for (i = 0; i < totalMaquinas; i++)
     {
         printf("%-4d %-20s %-7d %-8d ",
                maquinas[i].id, maquinas[i].nome,
@@ -122,7 +150,7 @@ void listarMaquinas(void)
             printf("%-11s ", maquinas[i].recordista);
         }
 
-        if (maquinas[i].ativa)
+        if (maquinas[i].ativa == 1)
         {
             printf("Ativa\n");
         }
@@ -133,8 +161,155 @@ void listarMaquinas(void)
     }
 }
 
+/*
+ * Modulo A: vende fichas no caixa. O valor a pagar e a quantidade
+ * multiplicada pelo preco da ficha.
+ */
+// Autor: Douglas Luan
+void comprarFichas(void)
+{
+    int quantidade;
+    float valor;
+
+    quantidade = lerInteiroB("Quantidade de fichas (1 a 100): ");
+    if (quantidade < 1 || quantidade > 100)
+    {
+        printf("Quantidade invalida. Nada foi vendido.\n");
+        return;
+    }
+
+    valor = quantidade * caixa.precoFicha;
+    caixa.fichasEmMaos += quantidade;
+    caixa.fichasVendidas += quantidade;
+    caixa.totalArrecadado += valor;
+
+    printf("Venda de %d ficha(s): R$ %.2f. Fichas em maos: %d.\n",
+           quantidade, valor, caixa.fichasEmMaos);
+}
+
+/*
+ * Modulo A: gasta uma ficha numa maquina ativa. Atualiza as fichas
+ * da maquina, a receita, a matriz de uso semanal e, se a pontuacao
+ * superar o recorde, o high score e o recordista.
+ */
+// Autor: Douglas Luan
+void jogarMaquina(void)
+{
+    int id, pos, dia, pontos;
+
+    if (caixa.fichasEmMaos == 0)
+    {
+        printf("Voce nao tem fichas. Compre fichas no caixa primeiro.\n");
+        return;
+    }
+
+    id = lerInteiroB("ID da maquina: ");
+    pos = buscarIndicePorIdB(id);
+
+    if (pos == -1)
+    {
+        printf("Maquina com ID %d nao encontrada.\n", id);
+        return;
+    }
+    if (maquinas[pos].ativa == 0)
+    {
+        printf("A maquina %d esta em manutencao.\n", id);
+        return;
+    }
+
+    dia = lerInteiroB("Dia (0-Dom 1-Seg 2-Ter 3-Qua 4-Qui 5-Sex 6-Sab): ");
+    if (dia < 0 || dia >= DIAS_SEMANA)
+    {
+        printf("Dia invalido. A ficha nao foi gasta.\n");
+        return;
+    }
+
+    pontos = lerInteiroB("Pontuacao obtida: ");
+    if (pontos < 0)
+    {
+        printf("Pontuacao invalida. A ficha nao foi gasta.\n");
+        return;
+    }
+
+    caixa.fichasEmMaos--;
+    maquinas[pos].fichasInseridas++;
+    maquinas[pos].receita += caixa.precoFicha;
+    usoSemanal[pos][dia]++;
+
+    if (pontos > maquinas[pos].highScore)
+    {
+        maquinas[pos].highScore = pontos;
+        printf("Novo recorde! Nome do recordista: ");
+        scanf(" %29[^\n]", maquinas[pos].recordista);
+    }
+    else
+    {
+        printf("O recorde da maquina continua em %d pontos.\n",
+               maquinas[pos].highScore);
+    }
+}
+
+/* Modulo A: mostra os dados do caixa */
+// Autor: Douglas Luan
+void consultarCaixa(void)
+{
+    printf("\n========== CAIXA ==========\n");
+    printf("Preco da ficha ..........: R$ %.2f\n", caixa.precoFicha);
+    printf("Fichas vendidas .........: %d\n", caixa.fichasVendidas);
+    printf("Total arrecadado ........: R$ %.2f\n", caixa.totalArrecadado);
+    printf("Fichas em maos ..........: %d\n", caixa.fichasEmMaos);
+    printf("===========================\n");
+}
+
+/*
+ * Submenu do Modulo A: cadastro de maquinas e operacoes do caixa.
+ */
+// Autor: Douglas Luan
+void moduloA(void)
+{
+    int opcao;
+
+    do
+    {
+        printf("\n--- [MODULO A: CADASTRO E CAIXA (Douglas)] ---\n");
+        printf("1. Cadastrar nova maquina\n");
+        printf("2. Listar maquinas\n");
+        printf("3. Comprar fichas no caixa\n");
+        printf("4. Jogar em uma maquina\n");
+        printf("5. Consultar caixa\n");
+        printf("0. Voltar ao Menu Principal\n");
+        opcao = lerInteiroB("Escolha uma acao: ");
+
+        switch (opcao)
+        {
+        case 1:
+            cadastrarMaquina();
+            break;
+        case 2:
+            listarMaquinas();
+            break;
+        case 3:
+            comprarFichas();
+            break;
+        case 4:
+            jogarMaquina();
+            break;
+        case 5:
+            consultarCaixa();
+            break;
+        case 0:
+            printf("\nRetornando ao menu principal...\n");
+            break;
+        default:
+            printf("\n[ERRO] Opcao invalida no Modulo A!\n");
+        }
+    } while (opcao != 0);
+}
+
+/* ===================== FIM DO MODULO A ==================== */
+
 /* ============================================================
- * INICIO DO MODULO B - Busca e Modificacao (Integrante B)
+ * INICIO DO MODULO B - Busca e Modificacao (Leonardo Messias)
  * Escreva suas funcoes SOMENTE entre estas linhas.
  * ============================================================ */
 
@@ -144,6 +319,7 @@ void listarMaquinas(void)
  * buffer, causando loop infinito. Aqui o buffer e limpo e a pergunta
  * e repetida ate a entrada ser valida.
  */
+// Autor: Leonardo Messias
 int lerInteiroB(const char *mensagem)
 {
     int valor;
@@ -171,9 +347,12 @@ int lerInteiroB(const char *mensagem)
  * O id NAO e a posicao: o modulo C pode remover maquinas e deixar os
  * ids "pulando" numeros, por isso e preciso comparar o campo id.
  */
+// Autor: Leonardo Messias
 int buscarIndicePorIdB(int id)
 {
-    for (int i = 0; i < totalMaquinas; i++)
+    int i;
+
+    for (i = 0; i < totalMaquinas; i++)
     {
         if (maquinas[i].id == id)
         {
@@ -184,6 +363,7 @@ int buscarIndicePorIdB(int id)
 }
 
 /* Modulo B: converte letra maiuscula em minuscula (sem ctype.h) */
+// Autor: Leonardo Messias
 char minusculaB(char c)
 {
     if (c >= 'A' && c <= 'Z')
@@ -198,17 +378,20 @@ char minusculaB(char c)
  * maiusculas/minusculas. Ex.: "pac" encontra "Pac-Man".
  * Retorna 1 se encontrou e 0 se nao.
  */
+// Autor: Leonardo Messias
 int contemTrechoB(const char *texto, const char *trecho)
 {
+    int i, j;
+
     /* Trecho vazio nao busca nada */
     if (trecho[0] == '\0')
     {
         return 0;
     }
 
-    for (int i = 0; texto[i] != '\0'; i++)
+    for (i = 0; texto[i] != '\0'; i++)
     {
-        int j = 0;
+        j = 0;
         while (trecho[j] != '\0' && texto[i + j] != '\0' &&
                minusculaB(texto[i + j]) == minusculaB(trecho[j]))
         {
@@ -224,6 +407,7 @@ int contemTrechoB(const char *texto, const char *trecho)
 }
 
 /* Modulo B: imprime UMA maquina (pela posicao no vetor) */
+// Autor: Leonardo Messias
 void mostrarMaquinaB(int i)
 {
     printf("%-4d %-20s %-7d %-8d ",
@@ -239,7 +423,7 @@ void mostrarMaquinaB(int i)
         printf("%-11s ", maquinas[i].recordista);
     }
 
-    if (maquinas[i].ativa)
+    if (maquinas[i].ativa == 1)
     {
         printf("Ativa\n");
     }
@@ -250,18 +434,22 @@ void mostrarMaquinaB(int i)
 }
 
 /* Modulo B: cabecalho da tabela (igual ao do listarMaquinas do A) */
+// Autor: Leonardo Messias
 void cabecalhoB(void)
 {
     printf("\nID   Jogo                 Fichas  Recorde  Recordista  Status\n");
 }
 
 /*
- * Modulo B (opcao 3): busca uma maquina pelo ID e mostra os dados.
+ * Modulo B: busca uma maquina pelo ID e mostra os dados.
  */
+// Autor: Leonardo Messias
 void buscarMaquinaPorId(void)
 {
-    int id = lerInteiroB("ID da maquina: ");
-    int pos = buscarIndicePorIdB(id);
+    int id, pos;
+
+    id = lerInteiroB("ID da maquina: ");
+    pos = buscarIndicePorIdB(id);
 
     if (pos == -1)
     {
@@ -274,19 +462,21 @@ void buscarMaquinaPorId(void)
 }
 
 /*
- * Modulo B (opcao 4): busca maquinas pelo nome (ou parte dele).
+ * Modulo B: busca maquinas pelo nome (ou parte dele).
  * Varias maquinas podem ter o mesmo jogo, entao o vetor inteiro e
  * percorrido e TODAS as correspondencias sao mostradas.
  */
+// Autor: Leonardo Messias
 void buscarMaquinaPorNome(void)
 {
     char trecho[TAM_NOME];
     int encontradas = 0;
+    int i;
 
     printf("Nome (ou parte do nome) do jogo: ");
     scanf(" %49[^\n]", trecho);
 
-    for (int i = 0; i < totalMaquinas; i++)
+    for (i = 0; i < totalMaquinas; i++)
     {
         if (contemTrechoB(maquinas[i].nome, trecho))
         {
@@ -311,13 +501,16 @@ void buscarMaquinaPorNome(void)
 }
 
 /*
- * Modulo B (opcao 5): modifica os dados de uma maquina (nome ou
- * recorde). Primeiro localiza pelo ID; so altera se ela existir.
+ * Modulo B: modifica os dados de uma maquina (nome ou recorde).
+ * Primeiro localiza pelo ID; so altera se ela existir.
  */
+// Autor: Leonardo Messias
 void modificarMaquina(void)
 {
-    int id = lerInteiroB("ID da maquina a modificar: ");
-    int pos = buscarIndicePorIdB(id);
+    int id, pos, escolha, novoScore;
+
+    id = lerInteiroB("ID da maquina a modificar: ");
+    pos = buscarIndicePorIdB(id);
 
     if (pos == -1)
     {
@@ -333,7 +526,7 @@ void modificarMaquina(void)
     printf("1 - Nome do jogo\n");
     printf("2 - Recorde e recordista\n");
     printf("0 - Cancelar\n");
-    int escolha = lerInteiroB("Escolha: ");
+    escolha = lerInteiroB("Escolha: ");
 
     switch (escolha)
     {
@@ -344,8 +537,7 @@ void modificarMaquina(void)
         break;
 
     case 2:
-    {
-        int novoScore = lerInteiroB("Novo recorde (pontos): ");
+        novoScore = lerInteiroB("Novo recorde (pontos): ");
 
         /* Validacao: pontuacao negativa nao faz sentido */
         if (novoScore < 0)
@@ -359,7 +551,6 @@ void modificarMaquina(void)
         scanf(" %29[^\n]", maquinas[pos].recordista);
         printf("Recorde atualizado.\n");
         break;
-    }
 
     case 0:
         printf("Modificacao cancelada.\n");
@@ -371,14 +562,16 @@ void modificarMaquina(void)
 }
 
 /*
- * Modulo B (opcao 6): altera o status da maquina (Ativa/Manutencao).
- * No struct do A, o status e o campo booleano 'ativa':
- * true = Ativa, false = Manutencao.
+ * Modulo B: altera o status da maquina (Ativa/Manutencao).
+ * O status e o campo 'ativa': 1 = Ativa, 0 = Manutencao.
  */
+// Autor: Leonardo Messias
 void alterarStatusMaquina(void)
 {
-    int id = lerInteiroB("ID da maquina: ");
-    int pos = buscarIndicePorIdB(id);
+    int id, pos, escolha;
+
+    id = lerInteiroB("ID da maquina: ");
+    pos = buscarIndicePorIdB(id);
 
     if (pos == -1)
     {
@@ -388,21 +581,21 @@ void alterarStatusMaquina(void)
 
     printf("Status atual da maquina %d (%s): %s\n",
            maquinas[pos].id, maquinas[pos].nome,
-           maquinas[pos].ativa ? "Ativa" : "Manutencao");
+           maquinas[pos].ativa == 1 ? "Ativa" : "Manutencao");
 
     printf("1 - Colocar como Ativa\n");
     printf("2 - Colocar em Manutencao\n");
     printf("0 - Cancelar\n");
-    int escolha = lerInteiroB("Escolha: ");
+    escolha = lerInteiroB("Escolha: ");
 
     if (escolha == 1)
     {
-        maquinas[pos].ativa = true;
+        maquinas[pos].ativa = 1;
         printf("Maquina %d agora esta Ativa.\n", maquinas[pos].id);
     }
     else if (escolha == 2)
     {
-        maquinas[pos].ativa = false;
+        maquinas[pos].ativa = 0;
         printf("Maquina %d agora esta em Manutencao.\n", maquinas[pos].id);
     }
     else if (escolha == 0)
@@ -414,6 +607,48 @@ void alterarStatusMaquina(void)
         printf("Opcao invalida. Nada foi alterado.\n");
     }
 }
+
+/*
+ * Submenu do Modulo B: chama as rotinas de busca e modificacao.
+ */
+// Autor: Leonardo Messias
+void moduloB(void)
+{
+    int opcao;
+
+    do
+    {
+        printf("\n--- [MODULO B: BUSCA E MODIFICACAO (Leonardo)] ---\n");
+        printf("1. Buscar maquina por ID\n");
+        printf("2. Buscar maquina por nome\n");
+        printf("3. Modificar nome ou recorde\n");
+        printf("4. Alterar status (Ativa/Manutencao)\n");
+        printf("0. Voltar ao Menu Principal\n");
+        opcao = lerInteiroB("Escolha uma acao: ");
+
+        switch (opcao)
+        {
+        case 1:
+            buscarMaquinaPorId();
+            break;
+        case 2:
+            buscarMaquinaPorNome();
+            break;
+        case 3:
+            modificarMaquina();
+            break;
+        case 4:
+            alterarStatusMaquina();
+            break;
+        case 0:
+            printf("\nRetornando ao menu principal...\n");
+            break;
+        default:
+            printf("\n[ERRO] Opcao invalida no Modulo B!\n");
+        }
+    } while (opcao != 0);
+}
+
 /* ===================== FIM DO MODULO B ==================== */
 
 /* ============================================================
@@ -422,38 +657,25 @@ void alterarStatusMaquina(void)
  * da matriz pertence a maquina que esta na posicao i do vetor.
  * ============================================================ */
 
-#define DIAS_SEMANA 7
-
-/* Fichas inseridas por maquina em cada dia (Dom, Seg, ..., Sab).
-   A soma de cada linha e igual ao fichasInseridas da maquina. */
-int usoSemanal[MAX_MAQUINAS][DIAS_SEMANA] = {
-    {1, 0, 1, 2, 1, 3, 4},
-    {0, 1, 0, 1, 2, 1, 4},
-    {0, 1, 1, 0, 1, 1, 3},
-    {2, 1, 2, 1, 2, 3, 4},
-    {2, 1, 2, 2, 3, 4, 6},
-    {0, 0, 1, 0, 1, 0, 2},
-    {2, 2, 1, 2, 3, 3, 5},
-    {1, 0, 2, 1, 1, 2, 4},
-    {0, 1, 0, 1, 1, 1, 2},
-    {0, 0, 1, 0, 0, 1, 1}};
-
 /*
- * Modulo C (opcao 7): remove uma maquina pelo ID.
+ * Modulo C: remove uma maquina pelo ID.
  * Para nao deixar buraco no vetor, as maquinas seguintes sobem uma
  * posicao e totalMaquinas diminui. A matriz sobe junto, senao as
  * linhas ficariam desencontradas das maquinas.
  */
+// Autor: Douglas Luan
 void removerMaquina(void)
 {
+    int id, pos, confirma, i, d;
+
     if (totalMaquinas == 0)
     {
         printf("Nenhuma maquina cadastrada para remover.\n");
         return;
     }
 
-    int id = lerInteiroB("ID da maquina a remover: ");
-    int pos = buscarIndicePorIdB(id);
+    id = lerInteiroB("ID da maquina a remover: ");
+    pos = buscarIndicePorIdB(id);
 
     if (pos == -1)
     {
@@ -464,17 +686,17 @@ void removerMaquina(void)
     cabecalhoB();
     mostrarMaquinaB(pos);
 
-    int confirma = lerInteiroB("Confirma a remocao? (1 - Sim, 0 - Nao): ");
+    confirma = lerInteiroB("Confirma a remocao? (1 - Sim, 0 - Nao): ");
     if (confirma != 1)
     {
         printf("Remocao cancelada.\n");
         return;
     }
 
-    for (int i = pos; i < totalMaquinas - 1; i++)
+    for (i = pos; i < totalMaquinas - 1; i++)
     {
         maquinas[i] = maquinas[i + 1];
-        for (int d = 0; d < DIAS_SEMANA; d++)
+        for (d = 0; d < DIAS_SEMANA; d++)
         {
             usoSemanal[i][d] = usoSemanal[i + 1][d];
         }
@@ -482,7 +704,7 @@ void removerMaquina(void)
 
     /* A ultima linha ficou repetida: zera para uma futura maquina
        cadastrada nessa posicao comecar sem uso */
-    for (int d = 0; d < DIAS_SEMANA; d++)
+    for (d = 0; d < DIAS_SEMANA; d++)
     {
         usoSemanal[totalMaquinas - 1][d] = 0;
     }
@@ -492,13 +714,16 @@ void removerMaquina(void)
 }
 
 /*
- * Modulo C (opcao 8): mostra a matriz de uso semanal (maquinas x
- * dias da semana) com o total de cada maquina e o total de cada dia.
+ * Modulo C: mostra a matriz de uso semanal (maquinas x dias da
+ * semana) com o total de cada maquina e o total de cada dia.
  */
+// Autor: Douglas Luan
 void mostrarMatrizUso(void)
 {
     int totalDia[DIAS_SEMANA] = {0};
     int totalGeral = 0;
+    int totalMaquina;
+    int i, d;
 
     if (totalMaquinas == 0)
     {
@@ -509,12 +734,12 @@ void mostrarMatrizUso(void)
     printf("\n========== USO SEMANAL (FICHAS POR DIA) ==========\n");
     printf("ID   Jogo                 Dom Seg Ter Qua Qui Sex Sab Total\n");
 
-    for (int i = 0; i < totalMaquinas; i++)
+    for (i = 0; i < totalMaquinas; i++)
     {
-        int totalMaquina = 0;
+        totalMaquina = 0;
 
         printf("%-4d %-20s", maquinas[i].id, maquinas[i].nome);
-        for (int d = 0; d < DIAS_SEMANA; d++)
+        for (d = 0; d < DIAS_SEMANA; d++)
         {
             printf("%4d", usoSemanal[i][d]);
             totalMaquina += usoSemanal[i][d];
@@ -525,7 +750,7 @@ void mostrarMatrizUso(void)
     }
 
     printf("%-25s", "Total do dia");
-    for (int d = 0; d < DIAS_SEMANA; d++)
+    for (d = 0; d < DIAS_SEMANA; d++)
     {
         printf("%4d", totalDia[d]);
     }
@@ -533,20 +758,54 @@ void mostrarMatrizUso(void)
     printf("==================================================\n");
 }
 
+/*
+ * Submenu do Modulo C: chama as rotinas de remocao e da matriz.
+ */
+// Autor: Douglas Luan
+void moduloC(void)
+{
+    int opcao;
+
+    do
+    {
+        printf("\n--- [MODULO C: REMOCAO E MATRIZ DE USO (Douglas)] ---\n");
+        printf("1. Remover maquina\n");
+        printf("2. Matriz de uso semanal\n");
+        printf("0. Voltar ao Menu Principal\n");
+        opcao = lerInteiroB("Escolha uma acao: ");
+
+        switch (opcao)
+        {
+        case 1:
+            removerMaquina();
+            break;
+        case 2:
+            mostrarMatrizUso();
+            break;
+        case 0:
+            printf("\nRetornando ao menu principal...\n");
+            break;
+        default:
+            printf("\n[ERRO] Opcao invalida no Modulo C!\n");
+        }
+    } while (opcao != 0);
+}
+
 /* ===================== FIM DO MODULO C ==================== */
 
 /* ============================================================
- * INICIO DO MODULO D - Relatorios e Ordenacao (Eduardo)
+ * INICIO DO MODULO D - Relatorios e Ordenacao (Eduardo Pan)
  * Este modulo so LE os dados globais (nao altera o vetor), entao
  * nao depende das funcoes de B e C: usa apenas maquinas[] e
  * totalMaquinas.
  * ============================================================ */
 
 /*
- * Modulo D (Eduardo): auxiliar que imprime uma maquina em uma linha.
+ * Modulo D: auxiliar que imprime uma maquina em uma linha.
  * Recebe a maquina como parametro (copia), sem alterar o vetor.
  */
-void imprimirLinhaMaquina(Maquina m)
+// Autor: Eduardo Pan
+void imprimirLinhaMaquina(struct Maquina m)
 {
     printf("[%2d] %-18s | Score: %6d | Recordista: ",
            m.id, m.nome, m.highScore);
@@ -560,7 +819,7 @@ void imprimirLinhaMaquina(Maquina m)
         printf("%s", m.recordista);
     }
 
-    if (m.ativa)
+    if (m.ativa == 1)
     {
         printf(" | Ativa\n");
     }
@@ -571,9 +830,10 @@ void imprimirLinhaMaquina(Maquina m)
 }
 
 /*
- * Modulo D (Eduardo): relatorio geral com totais, extremos de
- * high score, media e situacao das maquinas.
+ * Modulo D: relatorio geral com totais, extremos de high score,
+ * media e situacao das maquinas.
  */
+// Autor: Eduardo Pan
 void relatorioGeral(void)
 {
     int totalFichas = 0;
@@ -581,7 +841,9 @@ void relatorioGeral(void)
     int ativas = 0;
     int manutencao = 0;
     int posMaior, posMenor, posMaisJogada;
+    int i;
     float media;
+    float receitaTotal = 0;
 
     if (totalMaquinas == 0)
     {
@@ -594,12 +856,13 @@ void relatorioGeral(void)
     posMenor = 0;
     posMaisJogada = 0;
 
-    for (int i = 0; i < totalMaquinas; i++)
+    for (i = 0; i < totalMaquinas; i++)
     {
         totalFichas += maquinas[i].fichasInseridas;
         somaScores += maquinas[i].highScore;
+        receitaTotal += maquinas[i].receita;
 
-        if (maquinas[i].ativa)
+        if (maquinas[i].ativa == 1)
         {
             ativas++;
         }
@@ -630,6 +893,7 @@ void relatorioGeral(void)
     printf("Total de maquinas .......: %d\n", totalMaquinas);
     printf("Ativas / Manutencao .....: %d / %d\n", ativas, manutencao);
     printf("Total de fichas inseridas: %d\n", totalFichas);
+    printf("Receita das maquinas ....: R$ %.2f\n", receitaTotal);
     printf("Media dos high scores ...: %.2f\n", media);
 
     printf("\nMaior high score:\n  ");
@@ -645,14 +909,16 @@ void relatorioGeral(void)
 }
 
 /*
- * Modulo D (Eduardo): ranking de high scores (maior para menor)
- * com Bubble Sort. Ordena uma COPIA do vetor, entao as posicoes do
- * vetor original (usadas pelos modulos A, B e C) nao mudam.
+ * Modulo D: ranking de high scores (maior para menor) com Bubble
+ * Sort. Ordena uma COPIA do vetor, entao as posicoes do vetor
+ * original (usadas pelos modulos A, B e C) nao mudam.
  */
+// Autor: Eduardo Pan
 void rankingPorHighScore(void)
 {
-    Maquina copia[MAX_MAQUINAS];
-    Maquina aux;
+    struct Maquina copia[MAX_MAQUINAS];
+    struct Maquina aux;
+    int i, j;
 
     if (totalMaquinas == 0)
     {
@@ -661,15 +927,15 @@ void rankingPorHighScore(void)
     }
 
     /* 1. Copia o vetor original */
-    for (int i = 0; i < totalMaquinas; i++)
+    for (i = 0; i < totalMaquinas; i++)
     {
         copia[i] = maquinas[i];
     }
 
     /* 2. Bubble Sort decrescente por highScore */
-    for (int i = 0; i < totalMaquinas - 1; i++)
+    for (i = 0; i < totalMaquinas - 1; i++)
     {
-        for (int j = 0; j < totalMaquinas - 1 - i; j++)
+        for (j = 0; j < totalMaquinas - 1 - i; j++)
         {
             if (copia[j].highScore < copia[j + 1].highScore)
             {
@@ -682,7 +948,7 @@ void rankingPorHighScore(void)
 
     /* 3. Mostra o ranking */
     printf("\n========== RANKING DE HIGH SCORES ==========\n");
-    for (int i = 0; i < totalMaquinas; i++)
+    for (i = 0; i < totalMaquinas; i++)
     {
         printf("%2d lugar - ", i + 1);
         imprimirLinhaMaquina(copia[i]);
@@ -690,52 +956,78 @@ void rankingPorHighScore(void)
     printf("============================================\n");
 }
 
+/*
+ * Submenu do Modulo D: chama o relatorio geral e o ranking.
+ */
+// Autor: Eduardo Pan
+void moduloD(void)
+{
+    int opcao;
+
+    do
+    {
+        printf("\n--- [MODULO D: RELATORIOS E ORDENACAO (Eduardo)] ---\n");
+        printf("1. Relatorio geral\n");
+        printf("2. Ranking por high score\n");
+        printf("0. Voltar ao Menu Principal\n");
+        opcao = lerInteiroB("Escolha uma acao: ");
+
+        switch (opcao)
+        {
+        case 1:
+            relatorioGeral();
+            break;
+        case 2:
+            rankingPorHighScore();
+            break;
+        case 0:
+            printf("\nRetornando ao menu principal...\n");
+            break;
+        default:
+            printf("\n[ERRO] Opcao invalida no Modulo D!\n");
+        }
+    } while (opcao != 0);
+}
+
 /* ===================== FIM DO MODULO D ==================== */
 
+// Autor: Douglas Luan
 int main(void)
 {
     int opcao;
 
     do
     {
-        printf("\n=== FLIPERAMA ===\n");
-        printf("1 - Cadastrar maquina\n");
-        printf("2 - Listar maquinas\n");
-        /* Opcoes 3 a 6: modulo B (Integrante B adiciona aqui) */
-        printf("7 - Remover maquina\n");
-        printf("8 - Matriz de uso semanal\n");
-        printf("9 - Relatorio geral\n");
-        printf("10 - Ranking por high score\n");
-        printf("0 - Sair\n");
-        printf("Escolha: ");
-        scanf("%d", &opcao);
+        printf("\n======================================\n");
+        printf("   FLIPERAMA - SISTEMA DE GESTAO\n");
+        printf("======================================\n");
+        printf("1. Modulo A: Cadastro e Caixa (Douglas)\n");
+        printf("2. Modulo B: Busca e Modificacao (Leonardo)\n");
+        printf("3. Modulo C: Remocao e Matriz (Douglas)\n");
+        printf("4. Modulo D: Relatorios e Ordenacao (Eduardo)\n");
+        printf("0. Sair\n");
+        printf("--------------------------------------\n");
+        opcao = lerInteiroB("Escolha: ");
 
         switch (opcao)
         {
         case 1:
-            cadastrarMaquina();
+            moduloA();
             break;
         case 2:
-            listarMaquinas();
+            moduloB();
             break;
-        /* case 3 a 6: modulo B (Integrante B adiciona aqui) */
-        case 7:
-            removerMaquina();
+        case 3:
+            moduloC();
             break;
-        case 8:
-            mostrarMatrizUso();
-            break;
-        case 9:
-            relatorioGeral();
-            break;
-        case 10:
-            rankingPorHighScore();
+        case 4:
+            moduloD();
             break;
         case 0:
             printf("Ate a proxima!\n");
             break;
         default:
-            printf("Opcao invalida.\n");
+            printf("Opcao invalida. Digite um numero de 0 a 4.\n");
         }
     } while (opcao != 0);
 
