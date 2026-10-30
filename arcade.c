@@ -28,7 +28,8 @@
 #define TAM_NOME 50
 #define TAM_RECORDISTA 30
 
-typedef struct {
+typedef struct
+{
     int id;
     char nome[TAM_NOME];
     int fichasInseridas;
@@ -37,34 +38,24 @@ typedef struct {
     bool ativa;
 } Maquina;
 
-typedef struct {
+typedef struct
+{
     int precoFicha;
     int saldo;
     int fichasEmMaos;
 } Caixa;
 
 Maquina maquinas[MAX_MAQUINAS] = {
-    {.id = 1, .nome = "Street Fighter II", .fichasInseridas = 12,
-     .highScore = 15000, .recordista = "Ana", .ativa = true},
-    {.id = 2, .nome = "Street Fighter II", .fichasInseridas = 9,
-     .highScore = 11800, .recordista = "Diego", .ativa = true},
-    {.id = 3, .nome = "Pac-Man", .fichasInseridas = 7,
-     .highScore = 8200, .recordista = "Bruno", .ativa = true},
-    {.id = 4, .nome = "Pac-Man", .fichasInseridas = 15,
-     .highScore = 9600, .recordista = "Elisa", .ativa = true},
-    {.id = 5, .nome = "Pinball", .fichasInseridas = 20,
-     .highScore = 23400, .recordista = "Carla", .ativa = true},
-    {.id = 6, .nome = "Pinball", .fichasInseridas = 4,
-     .highScore = 17500, .recordista = "Felipe", .ativa = true},
-    {.id = 7, .nome = "Street Fighter II", .fichasInseridas = 18,
-     .highScore = 13200, .recordista = "Gabi", .ativa = false},
-    {.id = 8, .nome = "Pac-Man", .fichasInseridas = 11,
-     .highScore = 7400, .recordista = "Hugo", .ativa = false},
-    {.id = 9, .nome = "Pinball", .fichasInseridas = 6,
-     .highScore = 20100, .recordista = "Iara", .ativa = false},
-    {.id = 10, .nome = "Street Fighter II", .fichasInseridas = 3,
-     .highScore = 5900, .recordista = "Joao", .ativa = false}
-};
+    {.id = 1, .nome = "Street Fighter II", .fichasInseridas = 12, .highScore = 15000, .recordista = "Ana", .ativa = true},
+    {.id = 2, .nome = "Street Fighter II", .fichasInseridas = 9, .highScore = 11800, .recordista = "Diego", .ativa = true},
+    {.id = 3, .nome = "Pac-Man", .fichasInseridas = 7, .highScore = 8200, .recordista = "Bruno", .ativa = true},
+    {.id = 4, .nome = "Pac-Man", .fichasInseridas = 15, .highScore = 9600, .recordista = "Elisa", .ativa = true},
+    {.id = 5, .nome = "Pinball", .fichasInseridas = 20, .highScore = 23400, .recordista = "Carla", .ativa = true},
+    {.id = 6, .nome = "Pinball", .fichasInseridas = 4, .highScore = 17500, .recordista = "Felipe", .ativa = true},
+    {.id = 7, .nome = "Street Fighter II", .fichasInseridas = 18, .highScore = 13200, .recordista = "Gabi", .ativa = false},
+    {.id = 8, .nome = "Pac-Man", .fichasInseridas = 11, .highScore = 7400, .recordista = "Hugo", .ativa = false},
+    {.id = 9, .nome = "Pinball", .fichasInseridas = 6, .highScore = 20100, .recordista = "Iara", .ativa = false},
+    {.id = 10, .nome = "Street Fighter II", .fichasInseridas = 3, .highScore = 5900, .recordista = "Joao", .ativa = false}};
 
 /* Quantas posicoes do vetor estao realmente em uso */
 int totalMaquinas = 10;
@@ -80,9 +71,11 @@ Caixa caixa = {1, 0, 0};
  * Antes de gravar, valida o limite do vetor para nao escrever fora
  * da memoria reservada.
  */
-void cadastrarMaquina(void) {
+void cadastrarMaquina(void)
+{
     /* Validacao de limite: se o vetor esta cheio, nao cadastra */
-    if (totalMaquinas >= MAX_MAQUINAS) {
+    if (totalMaquinas >= MAX_MAQUINAS)
+    {
         printf("Limite de maquinas atingido (%d).\n", MAX_MAQUINAS);
         return;
     }
@@ -113,22 +106,30 @@ void cadastrarMaquina(void) {
     printf("Maquina cadastrada com ID %d.\n", nova.id);
 }
 
-void listarMaquinas(void) {
+void listarMaquinas(void)
+{
     printf("\nID   Jogo                 Fichas  Recorde  Recordista  Status\n");
-    for (int i = 0; i < totalMaquinas; i++) {
+    for (int i = 0; i < totalMaquinas; i++)
+    {
         printf("%-4d %-20s %-7d %-8d ",
                maquinas[i].id, maquinas[i].nome,
                maquinas[i].fichasInseridas, maquinas[i].highScore);
 
-        if (maquinas[i].recordista[0] == '\0') {
+        if (maquinas[i].recordista[0] == '\0')
+        {
             printf("%-11s ", "---");
-        } else {
+        }
+        else
+        {
             printf("%-11s ", maquinas[i].recordista);
         }
 
-        if (maquinas[i].ativa) {
+        if (maquinas[i].ativa)
+        {
             printf("Ativa\n");
-        } else {
+        }
+        else
+        {
             printf("Manutencao\n");
         }
     }
@@ -139,23 +140,26 @@ void listarMaquinas(void) {
  * Escreva suas funcoes SOMENTE entre estas linhas.
  * ============================================================ */
 
-<<<<<<< HEAD
 /*
  * Modulo B: le um numero inteiro com seguranca.
  * Se o usuario digitar letras, o scanf falha e o texto ficaria no
  * buffer, causando loop infinito. Aqui o buffer e limpo e a pergunta
  * e repetida ate a entrada ser valida.
  */
-int lerInteiroB(const char *mensagem) {
+int lerInteiroB(const char *mensagem)
+{
     int valor;
     int c;
 
     printf("%s", mensagem);
-    while (scanf("%d", &valor) != 1) {
+    while (scanf("%d", &valor) != 1)
+    {
         /* Descarta tudo ate o fim da linha */
-        while ((c = getchar()) != '\n' && c != EOF) {
+        while ((c = getchar()) != '\n' && c != EOF)
+        {
         }
-        if (c == EOF) {
+        if (c == EOF)
+        {
             return 0;
         }
         printf("Entrada invalida. %s", mensagem);
@@ -169,9 +173,12 @@ int lerInteiroB(const char *mensagem) {
  * O id NAO e a posicao: o modulo C pode remover maquinas e deixar os
  * ids "pulando" numeros, por isso e preciso comparar o campo id.
  */
-int buscarIndicePorIdB(int id) {
-    for (int i = 0; i < totalMaquinas; i++) {
-        if (maquinas[i].id == id) {
+int buscarIndicePorIdB(int id)
+{
+    for (int i = 0; i < totalMaquinas; i++)
+    {
+        if (maquinas[i].id == id)
+        {
             return i;
         }
     }
@@ -179,8 +186,10 @@ int buscarIndicePorIdB(int id) {
 }
 
 /* Modulo B: converte letra maiuscula em minuscula (sem ctype.h) */
-char minusculaB(char c) {
-    if (c >= 'A' && c <= 'Z') {
+char minusculaB(char c)
+{
+    if (c >= 'A' && c <= 'Z')
+    {
         return c + ('a' - 'A');
     }
     return c;
@@ -191,20 +200,25 @@ char minusculaB(char c) {
  * maiusculas/minusculas. Ex.: "pac" encontra "Pac-Man".
  * Retorna 1 se encontrou e 0 se nao.
  */
-int contemTrechoB(const char *texto, const char *trecho) {
+int contemTrechoB(const char *texto, const char *trecho)
+{
     /* Trecho vazio nao busca nada */
-    if (trecho[0] == '\0') {
+    if (trecho[0] == '\0')
+    {
         return 0;
     }
 
-    for (int i = 0; texto[i] != '\0'; i++) {
+    for (int i = 0; texto[i] != '\0'; i++)
+    {
         int j = 0;
         while (trecho[j] != '\0' && texto[i + j] != '\0' &&
-               minusculaB(texto[i + j]) == minusculaB(trecho[j])) {
+               minusculaB(texto[i + j]) == minusculaB(trecho[j]))
+        {
             j++;
         }
         /* Chegou ao fim do trecho: todas as letras bateram */
-        if (trecho[j] == '\0') {
+        if (trecho[j] == '\0')
+        {
             return 1;
         }
     }
@@ -212,37 +226,47 @@ int contemTrechoB(const char *texto, const char *trecho) {
 }
 
 /* Modulo B: imprime UMA maquina (pela posicao no vetor) */
-void mostrarMaquinaB(int i) {
+void mostrarMaquinaB(int i)
+{
     printf("%-4d %-20s %-7d %-8d ",
            maquinas[i].id, maquinas[i].nome,
            maquinas[i].fichasInseridas, maquinas[i].highScore);
 
-    if (maquinas[i].recordista[0] == '\0') {
+    if (maquinas[i].recordista[0] == '\0')
+    {
         printf("%-11s ", "---");
-    } else {
+    }
+    else
+    {
         printf("%-11s ", maquinas[i].recordista);
     }
 
-    if (maquinas[i].ativa) {
+    if (maquinas[i].ativa)
+    {
         printf("Ativa\n");
-    } else {
+    }
+    else
+    {
         printf("Manutencao\n");
     }
 }
 
 /* Modulo B: cabecalho da tabela (igual ao do listarMaquinas do A) */
-void cabecalhoB(void) {
+void cabecalhoB(void)
+{
     printf("\nID   Jogo                 Fichas  Recorde  Recordista  Status\n");
 }
 
 /*
  * Modulo B (opcao 3): busca uma maquina pelo ID e mostra os dados.
  */
-void buscarMaquinaPorId(void) {
+void buscarMaquinaPorId(void)
+{
     int id = lerInteiroB("ID da maquina: ");
     int pos = buscarIndicePorIdB(id);
 
-    if (pos == -1) {
+    if (pos == -1)
+    {
         printf("Maquina com ID %d nao encontrada.\n", id);
         return;
     }
@@ -256,17 +280,21 @@ void buscarMaquinaPorId(void) {
  * Varias maquinas podem ter o mesmo jogo, entao o vetor inteiro e
  * percorrido e TODAS as correspondencias sao mostradas.
  */
-void buscarMaquinaPorNome(void) {
+void buscarMaquinaPorNome(void)
+{
     char trecho[TAM_NOME];
     int encontradas = 0;
 
     printf("Nome (ou parte do nome) do jogo: ");
     scanf(" %49[^\n]", trecho);
 
-    for (int i = 0; i < totalMaquinas; i++) {
-        if (contemTrechoB(maquinas[i].nome, trecho)) {
+    for (int i = 0; i < totalMaquinas; i++)
+    {
+        if (contemTrechoB(maquinas[i].nome, trecho))
+        {
             /* Imprime o cabecalho so antes da primeira correspondencia */
-            if (encontradas == 0) {
+            if (encontradas == 0)
+            {
                 cabecalhoB();
             }
             mostrarMaquinaB(i);
@@ -274,9 +302,12 @@ void buscarMaquinaPorNome(void) {
         }
     }
 
-    if (encontradas == 0) {
+    if (encontradas == 0)
+    {
         printf("Nenhuma maquina encontrada com \"%s\".\n", trecho);
-    } else {
+    }
+    else
+    {
         printf("%d maquina(s) encontrada(s).\n", encontradas);
     }
 }
@@ -285,11 +316,13 @@ void buscarMaquinaPorNome(void) {
  * Modulo B (opcao 5): modifica os dados de uma maquina (nome ou
  * recorde). Primeiro localiza pelo ID; so altera se ela existir.
  */
-void modificarMaquina(void) {
+void modificarMaquina(void)
+{
     int id = lerInteiroB("ID da maquina a modificar: ");
     int pos = buscarIndicePorIdB(id);
 
-    if (pos == -1) {
+    if (pos == -1)
+    {
         printf("Maquina com ID %d nao encontrada.\n", id);
         return;
     }
@@ -304,35 +337,38 @@ void modificarMaquina(void) {
     printf("0 - Cancelar\n");
     int escolha = lerInteiroB("Escolha: ");
 
-    switch (escolha) {
-        case 1:
-            printf("Novo nome do jogo: ");
-            scanf(" %49[^\n]", maquinas[pos].nome);
-            printf("Nome atualizado.\n");
-            break;
+    switch (escolha)
+    {
+    case 1:
+        printf("Novo nome do jogo: ");
+        scanf(" %49[^\n]", maquinas[pos].nome);
+        printf("Nome atualizado.\n");
+        break;
 
-        case 2: {
-            int novoScore = lerInteiroB("Novo recorde (pontos): ");
+    case 2:
+    {
+        int novoScore = lerInteiroB("Novo recorde (pontos): ");
 
-            /* Validacao: pontuacao negativa nao faz sentido */
-            if (novoScore < 0) {
-                printf("Recorde invalido. Nada foi alterado.\n");
-                break;
-            }
-
-            maquinas[pos].highScore = novoScore;
-            printf("Nome do recordista: ");
-            scanf(" %29[^\n]", maquinas[pos].recordista);
-            printf("Recorde atualizado.\n");
+        /* Validacao: pontuacao negativa nao faz sentido */
+        if (novoScore < 0)
+        {
+            printf("Recorde invalido. Nada foi alterado.\n");
             break;
         }
 
-        case 0:
-            printf("Modificacao cancelada.\n");
-            break;
+        maquinas[pos].highScore = novoScore;
+        printf("Nome do recordista: ");
+        scanf(" %29[^\n]", maquinas[pos].recordista);
+        printf("Recorde atualizado.\n");
+        break;
+    }
 
-        default:
-            printf("Opcao invalida. Nada foi alterado.\n");
+    case 0:
+        printf("Modificacao cancelada.\n");
+        break;
+
+    default:
+        printf("Opcao invalida. Nada foi alterado.\n");
     }
 }
 
@@ -341,11 +377,13 @@ void modificarMaquina(void) {
  * No struct do A, o status e o campo booleano 'ativa':
  * true = Ativa, false = Manutencao.
  */
-void alterarStatusMaquina(void) {
+void alterarStatusMaquina(void)
+{
     int id = lerInteiroB("ID da maquina: ");
     int pos = buscarIndicePorIdB(id);
 
-    if (pos == -1) {
+    if (pos == -1)
+    {
         printf("Maquina com ID %d nao encontrada.\n", id);
         return;
     }
@@ -359,34 +397,33 @@ void alterarStatusMaquina(void) {
     printf("0 - Cancelar\n");
     int escolha = lerInteiroB("Escolha: ");
 
-    if (escolha == 1) {
+    if (escolha == 1)
+    {
         maquinas[pos].ativa = true;
         printf("Maquina %d agora esta Ativa.\n", maquinas[pos].id);
-    } else if (escolha == 2) {
+    }
+    else if (escolha == 2)
+    {
         maquinas[pos].ativa = false;
         printf("Maquina %d agora esta em Manutencao.\n", maquinas[pos].id);
-    } else if (escolha == 0) {
+    }
+    else if (escolha == 0)
+    {
         printf("Alteracao cancelada.\n");
-    } else {
+    }
+    else
+    {
         printf("Opcao invalida. Nada foi alterado.\n");
     }
 }
-=======
-
->>>>>>> origin/modulo-d
-
 /* ===================== FIM DO MODULO B ==================== */
-
 
 /* ============================================================
  * INICIO DO MODULO C - Remocao e Matriz (Integrante C)
  * Escreva suas funcoes SOMENTE entre estas linhas.
  * ============================================================ */
 
-
-
 /* ===================== FIM DO MODULO C ==================== */
-
 
 /* ============================================================
  * INICIO DO MODULO D - Relatorios e Ordenacao (Eduardo)
@@ -399,19 +436,26 @@ void alterarStatusMaquina(void) {
  * Modulo D (Eduardo): auxiliar que imprime uma maquina em uma linha.
  * Recebe a maquina como parametro (copia), sem alterar o vetor.
  */
-void imprimirLinhaMaquina(Maquina m) {
+void imprimirLinhaMaquina(Maquina m)
+{
     printf("[%2d] %-18s | Score: %6d | Recordista: ",
            m.id, m.nome, m.highScore);
 
-    if (m.recordista[0] == '\0') {
+    if (m.recordista[0] == '\0')
+    {
         printf("---");
-    } else {
+    }
+    else
+    {
         printf("%s", m.recordista);
     }
 
-    if (m.ativa) {
+    if (m.ativa)
+    {
         printf(" | Ativa\n");
-    } else {
+    }
+    else
+    {
         printf(" | Manutencao\n");
     }
 }
@@ -420,7 +464,8 @@ void imprimirLinhaMaquina(Maquina m) {
  * Modulo D (Eduardo): relatorio geral com totais, extremos de
  * high score, media e situacao das maquinas.
  */
-void relatorioGeral(void) {
+void relatorioGeral(void)
+{
     int totalFichas = 0;
     int somaScores = 0;
     int ativas = 0;
@@ -428,7 +473,8 @@ void relatorioGeral(void) {
     int posMaior, posMenor, posMaisJogada;
     float media;
 
-    if (totalMaquinas == 0) {
+    if (totalMaquinas == 0)
+    {
         printf("Nenhuma maquina cadastrada para gerar relatorio.\n");
         return;
     }
@@ -438,24 +484,31 @@ void relatorioGeral(void) {
     posMenor = 0;
     posMaisJogada = 0;
 
-    for (int i = 0; i < totalMaquinas; i++) {
+    for (int i = 0; i < totalMaquinas; i++)
+    {
         totalFichas += maquinas[i].fichasInseridas;
         somaScores += maquinas[i].highScore;
 
-        if (maquinas[i].ativa) {
+        if (maquinas[i].ativa)
+        {
             ativas++;
-        } else {
+        }
+        else
+        {
             manutencao++;
         }
 
-        if (maquinas[i].highScore > maquinas[posMaior].highScore) {
+        if (maquinas[i].highScore > maquinas[posMaior].highScore)
+        {
             posMaior = i;
         }
-        if (maquinas[i].highScore < maquinas[posMenor].highScore) {
+        if (maquinas[i].highScore < maquinas[posMenor].highScore)
+        {
             posMenor = i;
         }
         if (maquinas[i].fichasInseridas >
-            maquinas[posMaisJogada].fichasInseridas) {
+            maquinas[posMaisJogada].fichasInseridas)
+        {
             posMaisJogada = i;
         }
     }
@@ -486,24 +539,30 @@ void relatorioGeral(void) {
  * com Bubble Sort. Ordena uma COPIA do vetor, entao as posicoes do
  * vetor original (usadas pelos modulos A, B e C) nao mudam.
  */
-void rankingPorHighScore(void) {
+void rankingPorHighScore(void)
+{
     Maquina copia[MAX_MAQUINAS];
     Maquina aux;
 
-    if (totalMaquinas == 0) {
+    if (totalMaquinas == 0)
+    {
         printf("Nenhuma maquina cadastrada para gerar ranking.\n");
         return;
     }
 
     /* 1. Copia o vetor original */
-    for (int i = 0; i < totalMaquinas; i++) {
+    for (int i = 0; i < totalMaquinas; i++)
+    {
         copia[i] = maquinas[i];
     }
 
     /* 2. Bubble Sort decrescente por highScore */
-    for (int i = 0; i < totalMaquinas - 1; i++) {
-        for (int j = 0; j < totalMaquinas - 1 - i; j++) {
-            if (copia[j].highScore < copia[j + 1].highScore) {
+    for (int i = 0; i < totalMaquinas - 1; i++)
+    {
+        for (int j = 0; j < totalMaquinas - 1 - i; j++)
+        {
+            if (copia[j].highScore < copia[j + 1].highScore)
+            {
                 aux = copia[j];
                 copia[j] = copia[j + 1];
                 copia[j + 1] = aux;
@@ -513,7 +572,8 @@ void rankingPorHighScore(void) {
 
     /* 3. Mostra o ranking */
     printf("\n========== RANKING DE HIGH SCORES ==========\n");
-    for (int i = 0; i < totalMaquinas; i++) {
+    for (int i = 0; i < totalMaquinas; i++)
+    {
         printf("%2d lugar - ", i + 1);
         imprimirLinhaMaquina(copia[i]);
     }
@@ -522,11 +582,12 @@ void rankingPorHighScore(void) {
 
 /* ===================== FIM DO MODULO D ==================== */
 
-
-int main(void) {
+int main(void)
+{
     int opcao;
 
-    do {
+    do
+    {
         printf("\n=== FLIPERAMA ===\n");
         printf("1 - Cadastrar maquina\n");
         printf("2 - Listar maquinas\n");
@@ -538,26 +599,27 @@ int main(void) {
         printf("Escolha: ");
         scanf("%d", &opcao);
 
-        switch (opcao) {
-            case 1:
-                cadastrarMaquina();
-                break;
-            case 2:
-                listarMaquinas();
-                break;
-            /* case 3 a 6: modulo B (Integrante B adiciona aqui) */
-            /* case 7 e 8: modulo C (Integrante C adiciona aqui) */
-            case 9:
-                relatorioGeral();
-                break;
-            case 10:
-                rankingPorHighScore();
-                break;
-            case 0:
-                printf("Ate a proxima!\n");
-                break;
-            default:
-                printf("Opcao invalida.\n");
+        switch (opcao)
+        {
+        case 1:
+            cadastrarMaquina();
+            break;
+        case 2:
+            listarMaquinas();
+            break;
+        /* case 3 a 6: modulo B (Integrante B adiciona aqui) */
+        /* case 7 e 8: modulo C (Integrante C adiciona aqui) */
+        case 9:
+            relatorioGeral();
+            break;
+        case 10:
+            rankingPorHighScore();
+            break;
+        case 0:
+            printf("Ate a proxima!\n");
+            break;
+        default:
+            printf("Opcao invalida.\n");
         }
     } while (opcao != 0);
 
