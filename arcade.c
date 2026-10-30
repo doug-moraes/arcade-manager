@@ -5,15 +5,14 @@
  * Integrante A: Douglas Luan
  * Modulo: Insercao e Cadastro (validacao de limites na RAM)
  *
- * Integrante B: (pendente) - Busca e Modificacao
- * Integrante C: (pendente) - Remocao e Matriz
+ * Integrante B: Leonardo Messias
+ * Modulo: Busca e Modificacao (atualizacao de status e dados)
  *
- * Integrante D: Eduardo
+ * Integrante C: Douglas Luan
+ * Modulo: Remocao e Matriz (grade de controle do tema)
+ *
+ * Integrante D: Eduardo Pan
  * Modulo: Relatorios e Ordenacao (calculos analiticos e Bubble Sort)
- *
- * Neste arquivo, a funcao cadastrarMaquina() e a parte do integrante A.
- * A funcao listarMaquinas() e o main() com o menu sao provisorios e
- * servem apenas para testar o cadastro.
  *
  * REGRA DE INTEGRACAO: cada integrante escreve SOMENTE dentro da sua
  * regiao marcada (funcoes e linhas do menu). Nao use "Formatar codigo"
@@ -92,7 +91,6 @@ void cadastrarMaquina(void)
     printf("Nome do jogo: ");
     scanf(" %49[^\n]", nova.nome);
 
-    /* Valores iniciais de uma maquina nova */
     nova.fichasInseridas = 0;
     nova.highScore = 0;
     nova.recordista[0] = '\0';
@@ -419,9 +417,121 @@ void alterarStatusMaquina(void)
 /* ===================== FIM DO MODULO B ==================== */
 
 /* ============================================================
- * INICIO DO MODULO C - Remocao e Matriz (Integrante C)
- * Escreva suas funcoes SOMENTE entre estas linhas.
+ * INICIO DO MODULO C - Remocao e Matriz (Douglas Luan)
+ * A matriz de uso semanal acompanha o vetor maquinas[]: a linha i
+ * da matriz pertence a maquina que esta na posicao i do vetor.
  * ============================================================ */
+
+#define DIAS_SEMANA 7
+
+/* Fichas inseridas por maquina em cada dia (Dom, Seg, ..., Sab).
+   A soma de cada linha e igual ao fichasInseridas da maquina. */
+int usoSemanal[MAX_MAQUINAS][DIAS_SEMANA] = {
+    {1, 0, 1, 2, 1, 3, 4},
+    {0, 1, 0, 1, 2, 1, 4},
+    {0, 1, 1, 0, 1, 1, 3},
+    {2, 1, 2, 1, 2, 3, 4},
+    {2, 1, 2, 2, 3, 4, 6},
+    {0, 0, 1, 0, 1, 0, 2},
+    {2, 2, 1, 2, 3, 3, 5},
+    {1, 0, 2, 1, 1, 2, 4},
+    {0, 1, 0, 1, 1, 1, 2},
+    {0, 0, 1, 0, 0, 1, 1}};
+
+/*
+ * Modulo C (opcao 7): remove uma maquina pelo ID.
+ * Para nao deixar buraco no vetor, as maquinas seguintes sobem uma
+ * posicao e totalMaquinas diminui. A matriz sobe junto, senao as
+ * linhas ficariam desencontradas das maquinas.
+ */
+void removerMaquina(void)
+{
+    if (totalMaquinas == 0)
+    {
+        printf("Nenhuma maquina cadastrada para remover.\n");
+        return;
+    }
+
+    int id = lerInteiroB("ID da maquina a remover: ");
+    int pos = buscarIndicePorIdB(id);
+
+    if (pos == -1)
+    {
+        printf("Maquina com ID %d nao encontrada.\n", id);
+        return;
+    }
+
+    cabecalhoB();
+    mostrarMaquinaB(pos);
+
+    int confirma = lerInteiroB("Confirma a remocao? (1 - Sim, 0 - Nao): ");
+    if (confirma != 1)
+    {
+        printf("Remocao cancelada.\n");
+        return;
+    }
+
+    for (int i = pos; i < totalMaquinas - 1; i++)
+    {
+        maquinas[i] = maquinas[i + 1];
+        for (int d = 0; d < DIAS_SEMANA; d++)
+        {
+            usoSemanal[i][d] = usoSemanal[i + 1][d];
+        }
+    }
+
+    /* A ultima linha ficou repetida: zera para uma futura maquina
+       cadastrada nessa posicao comecar sem uso */
+    for (int d = 0; d < DIAS_SEMANA; d++)
+    {
+        usoSemanal[totalMaquinas - 1][d] = 0;
+    }
+
+    totalMaquinas--;
+    printf("Maquina %d removida.\n", id);
+}
+
+/*
+ * Modulo C (opcao 8): mostra a matriz de uso semanal (maquinas x
+ * dias da semana) com o total de cada maquina e o total de cada dia.
+ */
+void mostrarMatrizUso(void)
+{
+    int totalDia[DIAS_SEMANA] = {0};
+    int totalGeral = 0;
+
+    if (totalMaquinas == 0)
+    {
+        printf("Nenhuma maquina cadastrada para mostrar a matriz.\n");
+        return;
+    }
+
+    printf("\n========== USO SEMANAL (FICHAS POR DIA) ==========\n");
+    printf("ID   Jogo                 Dom Seg Ter Qua Qui Sex Sab Total\n");
+
+    for (int i = 0; i < totalMaquinas; i++)
+    {
+        int totalMaquina = 0;
+
+        printf("%-4d %-20s", maquinas[i].id, maquinas[i].nome);
+        for (int d = 0; d < DIAS_SEMANA; d++)
+        {
+            printf("%4d", usoSemanal[i][d]);
+            totalMaquina += usoSemanal[i][d];
+            totalDia[d] += usoSemanal[i][d];
+        }
+        printf("%6d\n", totalMaquina);
+        totalGeral += totalMaquina;
+    }
+
+    printf("%-25s", "Total do dia");
+    for (int d = 0; d < DIAS_SEMANA; d++)
+    {
+        printf("%4d", totalDia[d]);
+    }
+    printf("%6d\n", totalGeral);
+    printf("==================================================\n");
+}
 
 /* ===================== FIM DO MODULO C ==================== */
 
@@ -592,7 +702,8 @@ int main(void)
         printf("1 - Cadastrar maquina\n");
         printf("2 - Listar maquinas\n");
         /* Opcoes 3 a 6: modulo B (Integrante B adiciona aqui) */
-        /* Opcoes 7 e 8: modulo C (Integrante C adiciona aqui) */
+        printf("7 - Remover maquina\n");
+        printf("8 - Matriz de uso semanal\n");
         printf("9 - Relatorio geral\n");
         printf("10 - Ranking por high score\n");
         printf("0 - Sair\n");
@@ -608,7 +719,12 @@ int main(void)
             listarMaquinas();
             break;
         /* case 3 a 6: modulo B (Integrante B adiciona aqui) */
-        /* case 7 e 8: modulo C (Integrante C adiciona aqui) */
+        case 7:
+            removerMaquina();
+            break;
+        case 8:
+            mostrarMatrizUso();
+            break;
         case 9:
             relatorioGeral();
             break;
