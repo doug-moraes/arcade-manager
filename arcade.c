@@ -139,6 +139,7 @@ void listarMaquinas(void) {
  * Escreva suas funcoes SOMENTE entre estas linhas.
  * ============================================================ */
 
+<<<<<<< HEAD
 /*
  * Modulo B: le um numero inteiro com seguranca.
  * Se o usuario digitar letras, o scanf falha e o texto ficaria no
@@ -370,6 +371,9 @@ void alterarStatusMaquina(void) {
         printf("Opcao invalida. Nada foi alterado.\n");
     }
 }
+=======
+
+>>>>>>> origin/modulo-d
 
 /* ===================== FIM DO MODULO B ==================== */
 
