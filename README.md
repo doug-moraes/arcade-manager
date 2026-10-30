@@ -105,5 +105,6 @@ Cada integrante é responsável por um módulo do sistema.
 arcade-manager/
 ├── arcade.c      código-fonte do sistema
 ├── README.md     este arquivo
+├── checkpoints     checkpoints separados por pastas
 
 ```
